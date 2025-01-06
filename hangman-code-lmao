@@ -1,0 +1,187 @@
+import pygame  # GUI using pygame
+import math
+import random
+
+pygame.init()
+WIDTH, HEIGHT = 1100, 700
+win = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("HANGMAN")
+
+FPS = 60
+clock = pygame.time.Clock()
+RADIUS = 24
+SPACE = 20
+
+# Fonts
+font = pygame.font.SysFont("comicsans", 45)
+WORD = pygame.font.SysFont("comicsans", 40)
+TITLE = pygame.font.SysFont("comicsans", 70)
+
+# Word list with hints
+words_with_hints = {
+    'apple': 'A popular fruit often associated with health.',
+    'cat': 'A small domesticated carnivorous mammal.',
+    'Vocaloid': 'A singing voice synthesis software.',
+    'starlight': 'Light emitted by stars in the night sky.',
+    'disappointment': 'The feeling of dissatisfaction when expectations are not met.',
+    'sketchpad': 'A pad of paper for sketching or drawing.',
+    'email': 'A system for sending messages electronically.',
+    'Xbox': 'A gaming console developed by Microsoft.',
+    'Hololive': 'A virtual YouTuber agency from Japan.',
+    'Transformers': 'A popular line of toys that can change shape.',
+    'Lego': 'A brand of plastic construction toys.',
+    'Youtube': 'A video sharing platform where users can upload and view videos.',
+    'tears': 'A clear liquid secreted by glands found in the eyes of all land mammals.',
+    'fireflies': 'Beetles that use bioluminescence.',
+    'bromelain': 'An enzyme found in a pineapples juice and stem.',
+}
+
+def setup_game():
+    # Randomly choose a secret word and its hint from our dictionary
+    words, hint = random.choice(list(words_with_hints.items()))
+    words = words.lower()  # Convert word to lowercase for case-insensitive matching
+
+    # Game variables
+    hangman = 0
+    guessed = []  # to track the letters we have guessed
+    correct_guesses = []  # to track correctly guessed letters
+
+    # Buttons
+    letters = []
+    x_start = round((WIDTH - (RADIUS * 2 + SPACE) * 13) / 2)
+    y_start = 540
+
+    A = 65  # Using ASCII value to print letters on the button. A->65, B->66 and so on
+
+    for i in range(26):
+        x = x_start + SPACE * 2 + ((RADIUS * 2 + SPACE) * (i % 13))
+        y = y_start + ((i // 13) * (SPACE + RADIUS * 2))
+        letters.append([x, y, chr(A + i), True])
+
+    return words, hint, hangman, guessed, correct_guesses, letters
+
+def draw(words, hint, hangman, correct_guesses, letters):
+    win.fill((255, 255, 255))  # display with white color
+
+    # TITLE for the game
+    title = TITLE.render("Hangman", 1, (0, 0, 0))
+    win.blit(title, (WIDTH / 1.9 - title.get_width() / 2, 10))
+
+    # Draw hint on the screen
+    hint_text = WORD.render(f'HINT: {hint}', 1, (0, 0, 0))
+    win.blit(hint_text, (WIDTH / 2 - hint_text.get_width() / 2, 100))
+
+    # Draw word on the screen
+    disp_word = ""
+    for letter in words:
+        if letter in correct_guesses:
+            disp_word += letter + " "
+        else:
+            disp_word += "_ "
+
+    text = WORD.render(disp_word, 1, (0, 0, 0))
+    win.blit(text, (WIDTH / 2 - text.get_width() / 2, 250))
+
+    # Draw hangman
+    draw_hangman(hangman)
+
+    # Buttons at center
+    for btn_pos in letters:
+        x, y, ltr, visible = btn_pos  # making button visible and invisible after clicking it
+
+        if visible:
+            pygame.draw.circle(win, (0, 0, 0), (x, y), RADIUS, 4)
+            txt = font.render(ltr, 1, (0, 0, 0))
+            win.blit(txt, (x - txt.get_width() / 2, y - txt.get_height() / 2))
+
+    pygame.display.update()
+
+def draw_hangman(stage):
+    """Draw the hangman based on the current hangman stage."""
+    # Base and pole repositioned
+    pygame.draw.rect(win, (0, 0, 0), (50, 500, 100, 10))  # Ground
+    pygame.draw.rect(win, (0, 0, 0), (65, 200, 10, 300))  # Pole
+    pygame.draw.rect(win, (0, 0, 0), (65, 200, 100, 10))  # Top
+
+    # Draw the hangman
+    if stage >= 1:
+        pygame.draw.circle(win, (0, 0, 0), (165, 235), 20)  # Head
+    if stage >= 2:
+        pygame.draw.rect(win, (0, 0, 0), (155, 260, 20, 100))  # Body
+    if stage >= 3:
+        pygame.draw.line(win, (0, 0, 0), (165, 270), (130, 320), 5)  # Left Arm
+    if stage >= 4:
+        pygame.draw.line(win, (0, 0, 0), (165, 270), (200, 320), 5)  # Right Arm
+    if stage >= 5:
+        pygame.draw.line(win, (0, 0, 0), (165, 360), (130, 400), 5)  # Left Leg
+    if stage >= 6:
+        pygame.draw.line(win, (0, 0, 0), (165, 360), (200, 400), 5)  # Right Leg
+
+def play_game():
+    # Setup initial game state
+    words, hint, hangman, guessed, correct_guesses, letters = setup_game()
+    run = True
+
+    while run:
+        clock.tick(FPS)
+        draw(words, hint, hangman, correct_guesses, letters)
+
+        for event in pygame.event.get():  # Triggering the event
+            if event.type == pygame.QUIT:
+                return False  # Exit entire game
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x_mouse, y_mouse = pygame.mouse.get_pos()
+
+                for letter in letters:
+                    x, y, ltr, visible = letter
+
+                    if visible:
+                        dist = math.sqrt((x - x_mouse) ** 2 + (y - y_mouse) ** 2)
+
+                        if dist <= RADIUS:
+                            letter[3] = False  # to make the clicked button invisible
+                            ltr = ltr.lower()  # Convert to lowercase for comparison
+
+                            if ltr not in guessed:  # Only process if it's a new guess
+                                guessed.append(ltr)
+
+                                if ltr in words:
+                                    correct_guesses.append(ltr)
+                                else:
+                                    hangman += 1
+
+        # Deciding if you won the game or not
+        won = all(letter in correct_guesses for letter in set(words))
+
+        if won:
+            draw(words, hint, hangman, correct_guesses, letters)
+            pygame.time.delay(1000)
+            win.fill((0, 0, 0))
+            text = WORD.render("You Won!", 1, (129, 255, 0))
+            win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 2))
+            pygame.display.update()
+            pygame.time.delay(2000)
+            return True  # Indicate game ended successfully
+
+        if hangman == 6:
+            draw(words, hint, hangman, correct_guesses, letters)
+            pygame.time.delay(1000)
+            win.fill((0, 0, 0))
+            text = WORD.render("YOU LOST", 1, (255, 0, 5))
+            answer = WORD.render("The answer is " + words, 1, (129, 255, 0))
+            win.blit(text, (WIDTH / 2 - text.get_width() / 2, HEIGHT / 2 - text.get_height() / 2))
+            win.blit(answer, ((WIDTH / 2 - answer.get_width() / 2), (HEIGHT / 2 - text.get_height() / 2) + 70))
+            pygame.display.update()
+            pygame.time.delay(2000)
+            return True  # Indicate game ended
+
+def main():
+    play_again = True
+    while play_again:
+        play_again = play_game()
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
