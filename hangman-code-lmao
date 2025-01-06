@@ -3,7 +3,7 @@ import math
 import random
 
 pygame.init()
-WIDTH, HEIGHT = 1100, 700
+WIDTH, HEIGHT = 1300, 700
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("HANGMAN")
 
@@ -20,20 +20,25 @@ TITLE = pygame.font.SysFont("comicsans", 70)
 # Word list with hints
 words_with_hints = {
     'apple': 'A popular fruit often associated with health.',
-    'cat': 'A small domesticated carnivorous mammal.',
-    'Vocaloid': 'A singing voice synthesis software.',
+    'cat': 'A small domesticated carnivorous mammal. (meow)',
+    'Vocaloid': 'A singing voice synthesis software. ()',
     'starlight': 'Light emitted by stars in the night sky.',
-    'disappointment': 'The feeling of dissatisfaction when expectations are not met.',
+    'disappointment': 'The feeling when expectations are not met.',
     'sketchpad': 'A pad of paper for sketching or drawing.',
     'email': 'A system for sending messages electronically.',
     'Xbox': 'A gaming console developed by Microsoft.',
-    'Hololive': 'A virtual YouTuber agency from Japan.',
+    'Hololive': 'A virtual YouTuber agency from Japan. (gmmf)',
     'Transformers': 'A popular line of toys that can change shape.',
     'Lego': 'A brand of plastic construction toys.',
-    'Youtube': 'A video sharing platform where users can upload and view videos.',
-    'tears': 'A clear liquid secreted by glands found in the eyes of all land mammals.',
+    'Youtube': 'Video sharing platform where you can upload or view videos. ',
+    'tears': 'Liquid secreted by glands found in the eyes of land mammals. (wah wah wah)',
     'fireflies': 'Beetles that use bioluminescence.',
-    'bromelain': 'An enzyme found in a pineapples juice and stem.',
+    'bromelain': 'An enzyme found in a pineapples juice and stem. (it can eat you alive)',
+    'dreams': 'Imaginary sequences that play out in someones mind.',
+    'Amongus': 'A meme from a game about solving murders in space.',
+    'Fauna': 'Animal life present in a region. (uuuuuuu)',
+    'Pokemon': 'A game series about catching fantasy animals.',
+    'void': 'a completely empty space. (Yake ni shiroinda)',
 }
 
 def setup_game():
